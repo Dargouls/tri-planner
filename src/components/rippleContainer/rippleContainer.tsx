@@ -11,7 +11,20 @@ interface RippleProps {
 }
 
 interface RippleContainerProps {
-	children: React.ReactElement<any, any>;
+	children: React.ReactElement<any, any> & { ref?: React.Ref<any> };
+}
+
+// Função para mesclar refs
+function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
+	return (node: T) => {
+		refs.forEach((ref) => {
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref && typeof ref === 'object') {
+				(ref as React.MutableRefObject<T | null>).current = node;
+			}
+		});
+	};
 }
 
 export function RippleContainer({ children }: RippleContainerProps) {
@@ -40,22 +53,23 @@ export function RippleContainer({ children }: RippleContainerProps) {
 		[childClassName, extraClassName].filter(Boolean).join(' ');
 
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+		// Chama o onClick original do filho, se existir
 		if (children.props.onClick) {
 			children.props.onClick(event);
 		}
 		addRipple(event);
 	};
 
-	// Aqui forçamos o type do children para garantir que temos acesso a children.props
-	const child = children as React.ReactElement<any, any>;
+	// Acessa o ref a partir das props do children
+	const childRef = children.props.ref;
 
-	return React.cloneElement(child, {
-		ref: containerRef,
+	return React.cloneElement(children, {
+		ref: mergeRefs(containerRef, childRef),
 		onClick: handleClick,
-		className: mergeClasses(child.props.className, 'relative overflow-hidden'),
+		className: mergeClasses(children.props.className, 'relative overflow-hidden'),
 		children: (
 			<>
-				{child.props.children}
+				{children.props.children}
 				<AnimatePresence>
 					{ripples.map((ripple) => (
 						<motion.span
@@ -77,11 +91,11 @@ export function RippleContainer({ children }: RippleContainerProps) {
 								transform: 'translate(-50%, -50%)',
 							}}
 							exit={{ opacity: 0 }}
-							transition={{ duration: 0.85, ease: 'easeOut' }}
+							transition={{ duration: 0.5, ease: 'easeOut' }}
 							style={{
 								position: 'absolute',
 								borderRadius: '50%',
-								backgroundColor: 'rgba(56, 56, 56, 0.4)',
+								backgroundColor: 'rgba(56, 56, 56, 0.2)',
 								pointerEvents: 'none',
 							}}
 						/>
