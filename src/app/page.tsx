@@ -1,3 +1,9 @@
+import Page from '@/features/recipeGenerator/app/page';
+
 export default function Home() {
-	return <div>OLÀ</div>;
+	return (
+		<div>
+			<Page />
+		</div>
+	);
 }
