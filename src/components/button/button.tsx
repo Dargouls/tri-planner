@@ -20,8 +20,8 @@ const colors = {
 	warning: 'bg-ambar-500 text-text-foreground',
 	error: 'bg-rose-500 text-text-foreground',
 	info: 'bg-blue-500 text-text-foreground',
-	light: 'bg-white text-text',
-	dark: 'bg-black text-text-foreground',
+	light: 'bg-white text-black',
+	dark: 'bg-black text-white',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(

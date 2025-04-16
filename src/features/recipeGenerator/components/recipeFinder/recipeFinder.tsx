@@ -1,19 +1,22 @@
 'use client';
 
-import type React from 'react';
-
-import Button from '@/components/button/button';
-import Card from '@/components/card/card';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import Image from 'next/image';
-import { useState } from 'react';
+import CircularProgress from '@/components/circularProgress/circularProgress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useRecipesStore } from '@/contexts/findRecipes';
+import { cn } from '@/lib/utils';
+import { IconX } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 import RecipeCard from '../recipeCard/recipeCard';
 
-import logo from '@/assets/brand/logo-png.png';
-import { Input } from '@/components/ui/input';
-import { IconPlus } from '@tabler/icons-react';
-
+interface RecipeProps {
+	id: 2;
+	title: string;
+	description: string;
+	image: string;
+	prepTime: string;
+	ingredients: string[];
+	matchPercentage: number;
+}
 // Dados de exemplo para receitas
 const SAMPLE_RECIPES = [
 	{
@@ -43,183 +46,71 @@ const SAMPLE_RECIPES = [
 		ingredients: ['alface romana', 'croutons', 'parmesão', 'peito de frango', 'molho caesar'],
 		matchPercentage: 60,
 	},
+	{
+		id: 4,
+		title: 'Salada Caesar',
+		description: 'Salada refrescante com croutons e molho caesar',
+		image: '/placeholder.svg?height=200&width=300',
+		prepTime: '15 min',
+		ingredients: ['alface romana', 'croutons', 'parmesão', 'peito de frango', 'molho caesar'],
+		matchPercentage: 60,
+	},
+	{
+		id: 5,
+		title: 'Salada Caesar',
+		description: 'Salada refrescante com croutons e molho caesar',
+		image: '/placeholder.svg?height=200&width=300',
+		prepTime: '15 min',
+		ingredients: ['alface romana', 'croutons', 'parmesão', 'peito de frango', 'molho caesar'],
+		matchPercentage: 60,
+	},
+	{
+		id: 6,
+		title: 'Salada Caesar',
+		description: 'Salada refrescante com croutons e molho caesar',
+		image: '/placeholder.svg?height=200&width=300',
+		prepTime: '15 min',
+		ingredients: ['alface romana', 'croutons', 'parmesão', 'peito de frango', 'molho caesar'],
+		matchPercentage: 60,
+	},
 ];
 
-export function RecipeFinder() {
-	const [ingredients, setIngredients] = useState<string[]>([]);
-	const [currentIngredient, setCurrentIngredient] = useState('');
-	const [recipes, setRecipes] = useState(SAMPLE_RECIPES);
-	const [imagePreview, setImagePreview] = useState<string | null>(null);
+interface RecipeFinderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-	const addIngredient = () => {
-		if (currentIngredient.trim() && !ingredients.includes(currentIngredient.trim().toLowerCase())) {
-			setIngredients([...ingredients, currentIngredient.trim().toLowerCase()]);
-			setCurrentIngredient('');
-		}
+export function RecipeFinder({ ...props }: RecipeFinderProps) {
+	const setIngredients = useRecipesStore((state) => state.setIngredients);
+	const setOpenRecipes = useRecipesStore((state) => state.setOpenRecipes);
+	const [recipes, setRecipes] = useState<any>([]);
+
+	const handleClose = () => {
+		setIngredients([]);
+		setOpenRecipes(false);
 	};
 
-	const removeIngredient = (ingredient: string) => {
-		setIngredients(ingredients.filter((item) => item !== ingredient));
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter') {
-			e.preventDefault();
-			addIngredient();
-		}
-	};
-
-	const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				setImagePreview(reader.result as string);
-				// Em uma aplicação real, aqui você enviaria a imagem para uma API de reconhecimento
-				// e adicionaria os ingredientes identificados
-
-				// Simulando adição de ingredientes após upload de imagem
-				setTimeout(() => {
-					setIngredients([...ingredients, 'tomate', 'cebola', 'alho']);
-				}, 1000);
-			};
-			reader.readAsDataURL(file);
-		}
-	};
-
-	const clearImagePreview = () => {
-		setImagePreview(null);
-	};
-
-	const tabs = [
-		{
-			title: 'Product',
-			value: 'product',
-			content: (
-				<div className='relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 text-xl font-bold text-white md:text-4xl'>
-					<p>Product Tab</p>
-					<DummyContent />
-				</div>
-			),
-		},
-		{
-			title: 'Services',
-			value: 'services',
-			content: (
-				<div className='relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 text-xl font-bold text-white md:text-4xl'>
-					<p>Services tab</p>
-					<DummyContent />
-				</div>
-			),
-		},
-		{
-			title: 'Playground',
-			value: 'playground',
-			content: (
-				<div className='relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 text-xl font-bold text-white md:text-4xl'>
-					<p>Playground tab</p>
-					<DummyContent />
-				</div>
-			),
-		},
-		{
-			title: 'Content',
-			value: 'content',
-			content: (
-				<div className='relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 text-xl font-bold text-white md:text-4xl'>
-					<p>Content tab</p>
-					<DummyContent />
-				</div>
-			),
-		},
-		{
-			title: 'Random',
-			value: 'random',
-			content: (
-				<div className='relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 text-xl font-bold text-white md:text-4xl'>
-					<p>Random tab</p>
-					<DummyContent />
-				</div>
-			),
-		},
-	];
+	useEffect(() => {
+		setTimeout(() => {
+			setRecipes(SAMPLE_RECIPES);
+		}, 1000);
+	}, []);
 
 	return (
-		<div className='grid gap-8 md:grid-cols-[1fr_2fr]'>
-			{/* <div className='b relative mx-auto my-40 flex h-[20rem] w-full max-w-5xl flex-col items-start justify-start [perspective:1000px] md:h-[40rem]'>
-				<Tabs tabs={tabs} />
-			</div> */}
-
-			<Card title='Seus Ingredientes'>
-				<Card.Header>
-					<div>Adicione os ingredientes que você tem disponíveis</div>
-				</Card.Header>
-				<Card.Content>
-					<div className='space-y-4'>
-						<div className='flex items-center space-x-2'>
-							<Input
-								placeholder='Digite um ingrediente'
-								value={currentIngredient}
-								onChange={(e) => setCurrentIngredient(e.target.value)}
-								onKeyDown={handleKeyDown}
-							/>
-							<Button variant='icon' onClick={addIngredient}>
-								<IconPlus className='h-4 w-4' />
-							</Button>
-						</div>
-					</div>
-
-					<div className='mt-6'>
-						<h3 className='mb-2 text-sm font-medium'>Ingredientes Selecionados:</h3>
-						{ingredients.length > 0 ? (
-							<div className='flex flex-wrap gap-2'>
-								{ingredients.map((ingredient) => (
-									<Badge key={ingredient} variant='secondary' className='flex items-center gap-1'>
-										{ingredient}
-										<Button variant='ghost' onClick={() => removeIngredient(ingredient)} className='ml-1'>
-											<X className='h-3 w-3' />
-										</Button>
-									</Badge>
-								))}
-							</div>
-						) : (
-							<p className='text-muted-foreground text-sm'>Nenhum ingrediente adicionado ainda.</p>
-						)}
-					</div>
-				</Card.Content>
-				<Card.Footer>
-					<Button className='w-full' disabled={ingredients.length === 0}>
-						Encontrar Receitas
-					</Button>
-				</Card.Footer>
-			</Card>
-
-			<div className='space-y-6'>
-				<h2 className='text-2xl font-bold'>Receitas Sugeridas</h2>
-				{ingredients.length === 0 ? (
-					<div className='bg-muted rounded-lg p-8 text-center'>
-						<p className='text-muted-foreground'>Adicione ingredientes para ver sugestões de receitas</p>
-					</div>
-				) : (
-					<div className='grid gap-6 md:grid-cols-2'>
-						{recipes.map((recipe) => (
-							<RecipeCard key={recipe.id} recipe={recipe} />
-						))}
-					</div>
-				)}
-			</div>
+		<div className={cn('bg-card border-border relative flex-1 border-l transition-all', props.className)}>
+			{recipes.length <= 0 && (
+				<div className='absolute left-0 top-0 flex h-full w-full items-center justify-center'>
+					<CircularProgress size={40} />
+				</div>
+			)}
+			<ScrollArea className='h-[calc(100vh-4.5rem)]'>
+				<div className='group flex cursor-pointer items-center gap-2' onClick={handleClose}>
+					<IconX size={18} />
+					<span className='text-sm group-hover:underline'>Fechar receitas e tentar novamente</span>
+				</div>
+				<div className='space-y-6 pr-4'>
+					{recipes.map((recipe: RecipeProps) => (
+						<RecipeCard key={recipe.id} recipe={recipe} />
+					))}
+				</div>
+			</ScrollArea>
 		</div>
 	);
 }
-
-const DummyContent = () => {
-	return (
-		<Image
-			src={logo}
-			alt='dummy image'
-			width='1000'
-			height='1000'
-			className='absolute inset-x-0 -bottom-10 mx-auto h-[60%] w-[90%] rounded-xl object-cover object-left-top md:h-[90%]'
-		/>
-	);
-};
