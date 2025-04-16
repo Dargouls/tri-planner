@@ -2,16 +2,16 @@
 
 import type React from 'react';
 
-import FoodList from '../components/foodList/foodList';
-
-import food from '@/assets/animations/food.json';
 import { useRecipesStore } from '@/contexts/findRecipes';
+
+import food from '@/assets/animations/food - 1744836514318.json';
 import { cn } from '@/lib/utils';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { IngredientsScrollWrapper } from '@/components/scrollWrapper/scrollWrapper';
 import { Separator } from '@/components/ui/separator';
-import Lottie from 'react-lottie-player';
+import FoodList from '../components/foodList/foodList';
 import IngredientList from '../components/ingredientList/ingredientList';
 import NotesLists from '../components/notesLists/notesLists';
 import { RecipeFinder } from '../components/recipeFinder/recipeFinder';
@@ -42,8 +42,8 @@ export default function Home({ ...props }: Props) {
 								className='flex-1'
 							>
 								<div className={cn('flex flex-col items-center transition-all')}>
-									<Lottie className='h-28' play loop animationData={food} />
-
+									{/* <Lottie className='h-28' play loop animationData={food} /> */}
+									<DotLottieReact className='h-28' autoplay loop data={food} />
 									<h2 className='text-2xl font-semibold'>Vamos achar a receita perfeita para você</h2>
 									<span className='text-muted-foreground'>Sinta-se a vontade para informar as medidas</span>
 								</div>
