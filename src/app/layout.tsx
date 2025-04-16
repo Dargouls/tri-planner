@@ -4,7 +4,7 @@ import { Geist, Geist_Mono, Sen } from 'next/font/google';
 import './globals.css';
 
 const sen = Sen({
-	variable: '--font-geist-sen',
+	variable: '--font-sen',
 	subsets: ['latin'],
 });
 

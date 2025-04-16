@@ -47,6 +47,7 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--font-sen: var(--font-sen);
 }
 
 :root {
@@ -170,6 +171,6 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-text;
+		@apply bg-background text-text font-sen;
 	}
 }
