@@ -7,14 +7,11 @@ import { Combobox } from '@/components/combobox/combobox';
 import { Tabs } from '@/components/tabs/tabs';
 import { TabsContent } from '@/components/tabs/tabsContent';
 import { TabsProvider } from '@/components/tabs/tabsProvider';
-import { Badge } from '@/components/ui/badge';
 import Input from '@/components/ui/input';
 import { TextArea } from '@/components/ui/textarea';
 import { useRecipesStore } from '@/contexts/findRecipes';
 import { cn } from '@/lib/utils';
 import { IconPaperclip, IconPlus } from '@tabler/icons-react';
-import { X } from 'lucide-react';
-import { useState } from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { list } from './mockCulinary';
@@ -22,18 +19,10 @@ import { list } from './mockCulinary';
 interface FoodListProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export default function FoodList({ ...props }: FoodListProps) {
-	const [ingredients, setIngredients] = useState<string[]>([]);
+	const ingredients = useRecipesStore((state) => state.ingredients);
 	const setOpenRecipes = useRecipesStore((state) => state.setOpenRecipes);
 
-	const form = useForm({
-		defaultValues: {
-			ingredient: '',
-		},
-	});
-
-	const removeIngredient = (ingredient: string) => {
-		setIngredients(ingredients.filter((item) => item !== ingredient));
-	};
+	const form = useForm();
 
 	const tabs = [
 		{
@@ -56,8 +45,13 @@ export default function FoodList({ ...props }: FoodListProps) {
 		<TabsProvider initialTabs={tabs}>
 			<div className={cn('w-full max-w-[500px]', props.className)}>
 				<Tabs containerClassName='mb-2' />
-				<div className='bg-border relative h-40 rounded-2xl rounded-t-3xl'>
-					<div className='relative flex w-full flex-col items-start justify-start [perspective:1000px]'>
+				<div
+					className={cn(
+						'bg-border relative rounded-2xl rounded-t-3xl transition-all',
+						ingredients.length > 1 ? 'h-40' : 'h-24'
+					)}
+				>
+					<div className='relative z-10 flex w-full flex-col items-start justify-start [perspective:1000px]'>
 						<FormProvider {...form}>
 							<TabsContent />
 						</FormProvider>
@@ -74,7 +68,7 @@ export default function FoodList({ ...props }: FoodListProps) {
 				</div>
 			</div>
 
-			{ingredients.length > 0 && (
+			{/* {ingredients.length > 0 && (
 				<div className='flex flex-wrap gap-2'>
 					{ingredients.map((ingredient) => (
 						<Badge key={ingredient} variant='default' className='flex items-center gap-1'>
@@ -85,7 +79,7 @@ export default function FoodList({ ...props }: FoodListProps) {
 						</Badge>
 					))}
 				</div>
-			)}
+			)} */}
 		</TabsProvider>
 	);
 }
