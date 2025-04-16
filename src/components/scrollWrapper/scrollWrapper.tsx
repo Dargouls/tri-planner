@@ -13,7 +13,7 @@ export function IngredientsScrollWrapper({ children }: { children: React.ReactNo
 	}, [children]);
 
 	return (
-		<ScrollArea className='h-full'>
+		<ScrollArea className='h-full content-end' alignEnd>
 			<div className='space-y-4'>
 				{children}
 				{/* marcador invisível no fim */}

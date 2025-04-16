@@ -79,11 +79,13 @@ interface RecipeFinderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function RecipeFinder({ ...props }: RecipeFinderProps) {
 	const setIngredients = useRecipesStore((state) => state.setIngredients);
+	const setNotes = useRecipesStore((state) => state.setNotes);
 	const setOpenRecipes = useRecipesStore((state) => state.setOpenRecipes);
 	const [recipes, setRecipes] = useState<any>([]);
 
 	const handleClose = () => {
 		setIngredients([]);
+		setNotes([]);
 		setOpenRecipes(false);
 	};
 

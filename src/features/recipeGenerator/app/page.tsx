@@ -4,7 +4,7 @@ import type React from 'react';
 
 import FoodList from '../components/foodList/foodList';
 
-import food from '@/assets/animations/food - 1744700281153.json';
+import food from '@/assets/animations/food.json';
 import { useRecipesStore } from '@/contexts/findRecipes';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
@@ -21,12 +21,13 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 export default function Home({ ...props }: Props) {
 	const openRecipes = useRecipesStore((state) => state.openRecipes);
 	const notes = useRecipesStore((state) => state.notes);
+	const ingredients = useRecipesStore((state) => state.ingredients);
 
 	return (
-		<div className='h-[calc(100vh-4.5rem)] overflow-hidden'>
+		<div className='h-[calc(100vh-4.5rem)]'>
 			<div
 				className={cn(
-					'relative flex h-full w-full space-x-8 overflow-hidden transition-all',
+					'relative flex h-full w-full space-x-8 transition-all',
 					openRecipes ? 'items-start' : 'items-center justify-center'
 				)}
 			>
@@ -41,7 +42,8 @@ export default function Home({ ...props }: Props) {
 								className='flex-1'
 							>
 								<div className={cn('flex flex-col items-center transition-all')}>
-									<Lottie className='h-48' play loop animationData={food} />
+									<Lottie className='h-28' play loop animationData={food} />
+
 									<h2 className='text-2xl font-semibold'>Vamos achar a receita perfeita para você</h2>
 									<span className='text-muted-foreground'>Sinta-se a vontade para informar as medidas</span>
 								</div>
@@ -54,13 +56,17 @@ export default function Home({ ...props }: Props) {
 							<div className='mb-4 min-h-0 flex-1'>
 								<IngredientsScrollWrapper>
 									<IngredientList />
-									<Separator className='mt-4' />
+									<Separator className={cn('mt-4', notes.length <= 0 && 'hidden')} />
 									<NotesLists />
 								</IngredientsScrollWrapper>
 							</div>
 						)}
 
 						<FoodList className='mt-4' />
+						<IngredientList
+							className={cn('mb-4 mt-10', (ingredients.length <= 0 || openRecipes) && 'hidden')}
+						/>
+						<NotesLists className={cn('mb-4 mt-10', (notes.length <= 0 || openRecipes) && 'hidden')} />
 					</div>
 				</div>
 

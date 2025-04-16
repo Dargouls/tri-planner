@@ -30,7 +30,7 @@ export default function IngredientList({ ...props }: IngredientListProps) {
 	}
 
 	return (
-		<Card className='p-4' {...props}>
+		<Card {...props} className={cn('p-4', props.className)}>
 			<h3 className='mb-3 font-medium'>Ingredientes Selecionados</h3>
 			<ScrollArea className='max-h-[200px] pr-3'>
 				<div className='flex flex-wrap gap-2'>

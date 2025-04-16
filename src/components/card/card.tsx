@@ -1,5 +1,6 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { IconProps } from '@/interfaces/iconProps';
+import { cn } from '@/lib/utils';
 import { Info } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
@@ -18,10 +19,7 @@ interface CardContentProps
 export function CardRoot({ icon: Icon, title, iconColor, tip, children, ...props }: CardProps) {
 	return (
 		<>
-			<div
-				{...props}
-				className={twMerge('border-border bg-card min-w-32 rounded-lg border', props.className)}
-			>
+			<div {...props} className={cn('border-border bg-card min-w-32 rounded-lg border', props.className)}>
 				<CardHeader className={!title && !Icon ? 'hidden' : ''} tip={tip}>
 					{Icon && <Icon size={16} color={iconColor} className={iconColor ? '' : 'text-primary'} />}
 					{title && <h3 className='text-sm font-semibold'>{title}</h3>}

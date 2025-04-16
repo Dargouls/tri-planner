@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { useRecipesStore } from '@/contexts/findRecipes';
+import { cn } from '@/lib/utils';
 import { IconX } from '@tabler/icons-react';
 
 import { motion } from 'motion/react';
@@ -11,7 +12,7 @@ export default function NotesLists({ ...props }: NotesListsProps) {
 	const removeNote = useRecipesStore((state) => state.removeNote);
 
 	return (
-		<>
+		<div className={cn('', notes.length <= 0 && 'hidden', props.className)}>
 			<h3 className='mb-3 font-medium'>Observações</h3>
 			<div className='max-h-[200px] pr-3'>
 				<div className='flex flex-col gap-2'>
@@ -39,6 +40,6 @@ export default function NotesLists({ ...props }: NotesListsProps) {
 					))}
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }
