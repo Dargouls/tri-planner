@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge';
 
 export interface CardProps
 	extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
-	title: string;
+	title?: string;
 	icon?: IconProps;
 	iconColor?: string;
 	tip?: string;
@@ -22,9 +22,9 @@ export function CardRoot({ icon: Icon, title, iconColor, tip, children, ...props
 				{...props}
 				className={twMerge('border-border bg-card min-w-32 rounded-lg border', props.className)}
 			>
-				<CardHeader tip={tip}>
+				<CardHeader className={!title && !Icon ? 'hidden' : ''} tip={tip}>
 					{Icon && <Icon size={16} color={iconColor} className={iconColor ? '' : 'text-primary'} />}
-					<h3 className='text-sm font-semibold'>{title}</h3>
+					{title && <h3 className='text-sm font-semibold'>{title}</h3>}
 				</CardHeader>
 
 				{children}
