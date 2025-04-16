@@ -67,19 +67,6 @@ export default function FoodList({ ...props }: FoodListProps) {
 					</div>
 				</div>
 			</div>
-
-			{/* {ingredients.length > 0 && (
-				<div className='flex flex-wrap gap-2'>
-					{ingredients.map((ingredient) => (
-						<Badge key={ingredient} variant='default' className='flex items-center gap-1'>
-							{ingredient}
-							<Button variant='ghost' onClick={() => removeIngredient(ingredient)} className='ml-1'>
-								<X className='h-3 w-3' />
-							</Button>
-						</Badge>
-					))}
-				</div>
-			)} */}
 		</TabsProvider>
 	);
 }
@@ -119,10 +106,10 @@ function AddIngredient() {
 					{...register('ingredient')}
 				/>
 				<Button
-					className='w-max rounded-2xl'
+					className='text-text w-max rounded-2xl'
 					onClick={handleAddIngredient}
 					disabled={!watch('ingredient')?.trim()}
-					color='dark'
+					variant='text'
 				>
 					<span>Adicionar</span>
 					<IconPlus />
