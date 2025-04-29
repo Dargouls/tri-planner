@@ -5,11 +5,11 @@ import * as React from 'react';
 
 import { IconProps } from '@/interfaces/iconProps';
 import { cva } from 'class-variance-authority';
-import { DetailedHTMLProps, HTMLAttributes } from 'react';
+import { DetailedHTMLProps, InputHTMLAttributes, HTMLAttributes } from 'react';
 import InputMask from 'react-input-mask';
 import { twMerge } from 'tailwind-merge';
 
-interface TextFieldProps extends DetailedHTMLProps<HTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+interface TextFieldProps extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
 	register?: any;
 	placeholder?: string;
 	variant?: 'contained' | 'default';

@@ -1,4 +1,3 @@
-import AppContainer from '@/components/layout/appContainer';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Sen } from 'next/font/google';
 import './globals.css';
@@ -33,7 +32,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} bg-background ${sen.variable} ${geistMono.variable} antialiased`}
 			>
-				<AppContainer>{children}</AppContainer>
+				{children}
 			</body>
 		</html>
 	);
