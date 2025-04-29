@@ -1,169 +1,246 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import Header from '@/components/layout/header';
-import { TabsContent } from '@/components/tabs/tabsContent';
-import { TabsProvider } from '@/components/tabs/tabsProvider';
-import Input from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { TypingAnimation } from '@/components/ui/typing-text';
+import logo from '@/assets/brand/logo-png.png';
+
+import StepFormProvider from '@/components/stepFormProvider/stepFormProvider';
+import GridMotion from '@/components/ui/background-grid-motion';
+import BottomGradient from '@/components/ui/bottomGradient';
+import { items } from '@/utils/grid-items';
+import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react';
+import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { ConfirmPasswordStep } from './confirmPasswordStep';
+import EmailStep from './emailStep';
+import NameStep from './nameStep';
+import PasswordStep from './passwordStep';
 
 const formSchema = z.object({
-	username: z.string(),
-	email: z.string().email(),
-	password: z.string().min(6),
-	repassword: z.string().min(6),
+	username: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+	email: z.string().email({ message: 'Email inválido' }),
+	password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
+	repassword: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
 });
-type FormData = z.infer<typeof formSchema>;
+
+export type FormSignUpData = z.infer<typeof formSchema>;
 
 export default function SignUp() {
-	const form = useForm({ resolver: zodResolver(formSchema) });
-	const [activeTab, setActiveTab] = useState(0);
+	const methods = useForm<FormSignUpData>({
+		resolver: zodResolver(formSchema),
+		mode: 'onChange',
+	});
 
-	const { push } = useRouter();
+	const [step, setStep] = useState(0);
+	const [loading, setLoading] = useState(false);
+	const router = useRouter();
 
-	const a = true;
-	const onSubmit = async () => {
-		if (a && !form.formState.isValid) {
-			setActiveTab(activeTab + 1);
+	// Define os passos do formulário - reorganizados conforme solicitado
+	const steps = [
+		{ title: 'Email', component: EmailStep },
+		{ title: 'Nome', component: NameStep },
+		{ title: 'Senha', component: PasswordStep },
+		{ title: 'Confirmar Senha', component: ConfirmPasswordStep },
+	];
+
+	const nextStep = () => {
+		// Validar o campo atual antes de avançar
+		if (step === 0) {
+			// Validar email
+			const emailValue = methods.getValues('email');
+			if (!emailValue || !formSchema.shape.email.safeParse(emailValue).success) {
+				methods.trigger('email');
+				return;
+			}
+		} else if (step === 1) {
+			// Validar nome
+			const usernameValue = methods.getValues('username');
+			if (!usernameValue || !formSchema.shape.username.safeParse(usernameValue).success) {
+				methods.trigger('username');
+				return;
+			}
+		} else if (step === 2) {
+			// Validar senha
+			const passwordValue = methods.getValues('password');
+			if (!passwordValue || !formSchema.shape.password.safeParse(passwordValue).success) {
+				methods.trigger('password');
+				return;
+			}
+		}
+
+		if (step < steps.length - 1) {
+			setStep(step + 1);
+		}
+	};
+
+	const prevStep = () => {
+		if (step > 0) {
+			setStep(step - 1);
+		}
+	};
+
+	const onSubmit = async (data: FormSignUpData) => {
+		// Verificar se estamos no último passo
+		if (step < steps.length - 1) {
+			nextStep();
 			return;
 		}
 
-		if (!form.formState.isValid) {
-			setActiveTab(0);
-			return;
-		}
-
-		if (form.watch('repassword') !== form.watch('password')) {
+		// Validar se as senhas coincidem
+		if (data.password !== data.repassword) {
 			toast.error('As senhas devem ser iguais!');
 			return;
 		}
 
-		const user = await fetch('/api/auth/sign-up', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				name: form.watch('username'),
-				email: form.watch('email'),
-				password: form.watch('password'),
-				confirmPassword: form.watch('repassword'),
-			}),
-		})
-			.then((res) => {
-				if (res.ok) {
-					toast.success('Conta criada com sucesso!');
-					// push('/sign-in');
-				}
-				console.log(res);
-			})
-			.catch((e) => {
-				toast.error(e.message);
+		setLoading(true);
+		try {
+			const response = await fetch('/api/auth/sign-up', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					name: data.username,
+					email: data.email,
+					password: data.password,
+					confirmPassword: data.repassword,
+				}),
 			});
+
+			if (response.ok) {
+				toast.success('Conta criada com sucesso!');
+				login();
+			} else {
+				const errorData = await response.json();
+				toast.error(errorData.message || 'Erro ao criar conta');
+			}
+		} catch (error: any) {
+			toast.error(error.message || 'Erro ao criar conta');
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const tabs = [
-		{
-			title: '#',
-			value: 'username',
-			content: <UserName />,
-		},
-		{
-			title: '#',
-			value: 'email',
-			content: <UserEmail />,
-		},
-		{
-			title: '#',
-			value: 'password',
-			content: <UserPassword />,
-		},
-		{
-			title: '#',
-			value: 'confirm-password',
-			content: <UserConfirmPassword />,
-		},
+	const login = async () => {
+		try {
+			const result = await signIn('credentials', {
+				redirect: false,
+				email: methods.getValues('email'),
+				password: methods.getValues('password'),
+			});
+
+			if (result?.ok) {
+				router.push('/');
+			} else {
+				toast.error(result?.error || 'Email ou senha inválidos');
+				setLoading(false);
+			}
+		} catch (error) {
+			toast.error('Erro ao fazer login');
+			setLoading(false);
+		}
+	};
+
+	const isLastStep = step === steps.length - 1;
+	const isFirstStep = step === 0;
+
+	// Função para lidar com o clique no botão "Próximo"
+	const handleNextClick = () => {
+		if (isLastStep) {
+			// No último passo, o botão "Próximo" submete o formulário
+			methods.handleSubmit(onSubmit)();
+		} else {
+			// Nos outros passos, apenas avança para o próximo
+			nextStep();
+		}
+	};
+
+	// Componentes de formulário para o StepFormProvider
+	const formComponents = [
+		<EmailStep key='email' />,
+		<NameStep key='name' />,
+		<PasswordStep key='password' />,
+		<ConfirmPasswordStep key='confirmPassword' />,
 	];
 
 	return (
-		<>
-			<Header />
-			<div className='absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 place-items-center space-y-4'>
-				<TypingAnimation className='text-4xl'>Vamos começar do início, digite seu nome.</TypingAnimation>
-				<div className='relative h-[200px] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-700 to-violet-900 p-10 font-bold text-white'>
-					<TabsProvider initialTabs={tabs}>
-						<FormProvider {...form}>
-							<TabsContent activeTab={tabs[activeTab]} />
-							<button className='absolute bottom-2 right-2' onClick={onSubmit}>
-								Submit
-							</button>
-						</FormProvider>
-					</TabsProvider>
-				</div>
+		<div className='flex min-h-screen flex-col justify-center'>
+			<div className='absolute bottom-0 top-0 -z-10'>
+				<GridMotion items={items.filter((item) => typeof item === 'string')} />
 			</div>
-		</>
+
+			<div className='mx-auto my-4 w-full max-w-md rounded-none bg-white p-6 shadow-2xl sm:my-0 md:rounded-2xl md:p-8 dark:bg-black'>
+				<div className='mb-6 flex flex-col items-center'>
+					<figure>
+						<Image src={logo} alt='logo' width={70} height={70} />
+					</figure>
+					<span className='text-3xl font-bold'>Tortilllas</span>
+				</div>
+
+				{/* Indicador de progresso */}
+				<div className='mb-6 flex justify-between'>
+					{steps.map((_, index) => (
+						<div
+							key={index}
+							className={cn(
+								'h-2 rounded-full transition-all duration-300',
+								index <= step
+									? 'mx-0.5 flex-grow bg-blue-500'
+									: 'mx-0.5 flex-grow bg-gray-200 dark:bg-gray-700'
+							)}
+						/>
+					))}
+				</div>
+
+				<FormProvider {...methods}>
+					<form onSubmit={methods.handleSubmit(onSubmit)}>
+						<div className='relative h-[250px]'>
+							<StepFormProvider forms={formComponents} actualForm={step} />
+						</div>
+
+						<div className='flex justify-between'>
+							{!isFirstStep && (
+								<button
+									type='button'
+									onClick={prevStep}
+									className='flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+								>
+									<IconArrowLeft size={16} />
+									Voltar
+								</button>
+							)}
+
+							<div className='ml-auto'>
+								<button
+									type='button' // Mudado para type='button' para evitar submit automático
+									onClick={handleNextClick}
+									disabled={loading}
+									className='group/btn relative flex h-10 items-center gap-1 rounded-md bg-gradient-to-br from-black to-neutral-600 px-4 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]'
+								>
+									{loading ? 'Processando...' : isLastStep ? 'Criar conta' : 'Próximo'}
+									{!loading && !isLastStep && <IconArrowRight size={16} />}
+									{!loading && isLastStep && <IconCheck size={16} />}
+									<BottomGradient />
+								</button>
+							</div>
+						</div>
+					</form>
+				</FormProvider>
+
+				<p className='mt-6 text-center text-xs text-neutral-600 dark:text-neutral-400'>
+					Já tem uma conta?{' '}
+					<Link href='/sign-in' className='font-semibold'>
+						Faça login aqui
+					</Link>
+				</p>
+			</div>
+		</div>
 	);
 }
-
-const BottomGradient = () => {
-	return (
-		<>
-			<span className='absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100' />
-			<span className='absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100' />
-		</>
-	);
-};
-
-const LabelInputContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => {
-	return <div className={cn('flex w-full flex-col space-y-2', className)}>{children}</div>;
-};
-
-const UserName = () => {
-	const { register } = useFormContext<FormData>();
-	return (
-		<>
-			<LabelInputContainer className='bg-accent rounded-md p-4'>
-				<Label htmlFor='name'>Nome</Label>
-				<Input id='name' placeholder='Digite seu nome' {...register('username')} />
-			</LabelInputContainer>
-		</>
-	);
-};
-
-const UserEmail = () => {
-	const { register } = useFormContext<FormData>();
-	return (
-		<LabelInputContainer className='bg-accent rounded-md p-4'>
-			<Label htmlFor='email'>E-mail</Label>
-			<Input id='email' placeholder='Digite seu e-mail' {...register('email')} />
-		</LabelInputContainer>
-	);
-};
-
-const UserPassword = () => {
-	const { register } = useFormContext<FormData>();
-	return (
-		<LabelInputContainer className='bg-accent rounded-md p-4'>
-			<Label htmlFor='password'>Senha</Label>
-			<Input id='password' placeholder='••••••••' {...register('password')} />
-		</LabelInputContainer>
-	);
-};
-
-const UserConfirmPassword = () => {
-	const { register } = useFormContext<FormData>();
-	return (
-		<LabelInputContainer className='bg-accent rounded-md p-4'>
-			<Label htmlFor='confirmPassword'>Confirmar Senha</Label>
-			<Input id='confirmPassword' placeholder='••••••••' {...register('repassword')} />
-		</LabelInputContainer>
-	);
-};

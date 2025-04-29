@@ -5,43 +5,22 @@ import GridMotion from '@/components/ui/background-grid-motion';
 import Input from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { items } from '@/utils/grid-items';
 import { IconBrandGoogle } from '@tabler/icons-react';
-import Link from 'next/link';
-import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
 export default function SignIn({ ...props }: Props) {
 	// note: you'll need to make sure the parent container of this component is sized properly
-	const items = [
-		'/assets/images/lanche.png',
-		'/assets/images/saudavel.png',
-		'/assets/images/mexicano.png',
-		'/assets/images/lanche.png',
-		'/assets/images/saudavel.png',
-		'/assets/images/lanche.png',
-		'/assets/images/espaguete.png',
-		'/assets/images/mexicano.png',
-		'/assets/images/saudavel.png',
-		'/assets/images/lanche.png',
-		'/assets/images/mexicano.png',
-		'/assets/images/lanche.png',
-		'/assets/images/saudavel.png',
-		'/assets/images/lanche.png',
-		'/assets/images/mexicano.png',
-		'/assets/images/lanche.png',
-		'/assets/images/saudavel.png',
-		'/assets/images/lanche.png',
-		'/assets/images/mexicano.png',
-		'/assets/images/lanche.png',
-	];
 
 	return (
 		<div className='relative flex min-h-screen flex-col justify-center overflow-hidden'>
-			<div className='absolute -z-10'>
+			<div className='absolute bottom-0 top-0 -z-10'>
 				<GridMotion items={items.filter((item) => typeof item === 'string')} />
 			</div>
 
@@ -65,9 +44,8 @@ export function SignupFormDemo() {
 				email,
 				password,
 			});
-			
+
 			if (result?.ok) {
-				toast.success('Login realizado com sucesso!');
 				router.push('/');
 			} else {
 				toast.error(result?.error || 'Email ou senha inválidos');
@@ -85,7 +63,7 @@ export function SignupFormDemo() {
 				Faça login na Tortilllas App para continuar a gerar deliciosas receitas
 			</p>
 
-			<form className='my-8' onSubmit={handleSubmit}>
+			<form className='mt-8' onSubmit={handleSubmit}>
 				<LabelInputContainer className='mb-4'>
 					<Label htmlFor='email'>Email Address</Label>
 					<Input
